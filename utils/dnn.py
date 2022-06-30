@@ -1,87 +1,82 @@
-# DNN
-
-# Import Libraries
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-
+from tensorflow import keras
 from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.utils import to_categorical
-from tensorflow.python.keras.layers import Dense, Activation, Flatten, Input, Dropout
+
+from config.config import get_config
+
+config = get_config()
 
 
-def data_preprocessing(t):
-    data_train = pd.DataFrame(np.load("./max_normalized/train_dataset_{0}.npy".format(str(t)), allow_pickle=True))
-    data_test = pd.DataFrame(np.load("./max_normalized/test_dataset_{0}.npy".format(str(t)), allow_pickle=True))
-    data_train.columns = ['feature', 'label']
-    data_test.columns = ['feature', 'label']
+class DNN():
+    def __init__(self):
+        self.data = config.data
+        self.dense1 = config.dnn_dense1
+        self.dense2 = config.dnn_dense2
+        self.dense3 = config.dnn_dense3
+        self.dense4 = config.dnn_dense4
+        self.dense5 = config.dnn_dense5
+        self.dense6 = config.dnn_dense6
+        self.dense7 = config.dnn_dense7
+        self.dropout_rate = config.dnn_dropout_rate
+        self.model_folder_path = config.model_folder_path
 
-    X_train = np.array(data_train.feature.tolist()) # train data
-    Y_train = np.array(data_train.label.tolist()) # train data
-    X_test = np.array(data_test.feature.tolist()) # test data
-    Y_test = np.array(data_test.label.tolist()) # test label
+        if self.data == 'mels':
+            self.train_dataset_path = config.train_dataset_mels_path
+            self.test_dataset_path = config.test_dataset_mels_path
+            self.input_shape = [config.mels_input_1d]
+            self.best_model_path = self.model_folder_path + 'best_dnn_mels.h5'
+            self.model_path = self.model_folder_path + 'dnn_mels.h5'
 
-    lb = LabelEncoder()
-    Y_train = to_categorical(lb.fit_transform(Y_train))
-    Y_test = to_categorical(lb.fit_transform(Y_test))
+        elif self.data == 'mfcc':
+            self.train_dataset_path = config.train_dataset_mfcc_path
+            self.test_dataset_path = config.test_dataset_mfcc_path
+            self.input_shape = [config.mfcc_input_1d]
+            self.best_model_path = self.model_folder_path + 'best_dnn_mfcc.h5'
+            self.model_path = self.model_folder_path + 'dnn_mfcc.h5'
 
-    return X_train, Y_train, X_test, Y_test
+    def load_dataset(self):
+        train_data = pd.DataFrame(np.load(self.train_dataset_path), allow_pickle=True)
+        test_data = pd.DataFrame(np.load(self.test_dataset_path), allow_pickle=True)
+        train_data.columns = ['feature', 'label']
+        test_data.columns = ['feature', 'label']
 
+        x_train = np.array(train_data.feature.tolist())
+        y_train = np.array(train_data.label.tolist())
+        x_test = np.array(test_data.feature.tolist())
+        y_test = np.array(test_data.label.tolist())
 
-def dnn_model(X_train, Y_train, X_test, Y_test, t, n):
-    if t == "mels":
-        d1 = 8000
-    else:
-        d1 = 7800
+        lb = LabelEncoder()
+        y_train = keras.utils.to_categorical(lb.fit_transform(y_train))
+        y_test = keras.utils.to_categorical(lb.fit_transform(y_test))
 
-    model = tf.keras.models.Sequential()
+        return x_train, y_train, x_test, y_test
 
-    model.add(Flatten())
-    model.add(Dense(2048, input_shape=(d1,), activation='relu'))
-    model.add(Dropout(0.5))
+    def model(self):
+        input_layer = keras.layers.Flatten()
+        inputs = keras.Input(self.input_shape)(input_layer)
+        dense1 = keras.layers.Dense(self.dense1, activation=tf.nn.relu)(inputs)
+        dropout1 = keras.layers.Dropout(self.dropout_rate)(dense1)
+        dense2 = keras.layers.Dense(self.dense2, activation=tf.nn.relu)(dropout1)
+        dropout2 = keras.layers.Dropout(self.dropout_rate)(dense2)
+        dense3 = keras.layers.Dense(self.dense3, activation=tf.nn.relu)(dropout2)
+        dropout3 = keras.layers.Dropout(self.dropout_rate)(dense3)
+        dense4 = keras.layers.Dense(self.dense4, activation=tf.nn.relu)(dropout3)
+        dropout4 = keras.layers.Dropout(self.dropout_rate)(dense4)
+        dense5 = keras.layers.Dense(self.dense5, activation=tf.nn.relu)(dropout4)
+        dropout5 = keras.layers.Dropout(self.dropout_rate)(dense5)
+        dense6 = keras.layers.Dense(self.dense6, activation=tf.nn.relu)(dropout5)
+        dropout6 = keras.layers.Dropout(self.dropout_rate)(dense6)
+        output_layer = keras.layers.Dense(self.dense7, activation=tf.nn.softmax)(dropout6)
+        return keras.Model(inputs=input_layer, outputs=output_layer)
 
-    model.add(Dense(1024, activation='relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(512, activation='relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(256, activation='relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(2, activation='softmax'))
-
-    model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer='sgd')
-
-    model.fit(X_train, Y_train, batch_size=64, epochs=72, validation_data=(X_test, Y_test),
-              callbacks=[tf.keras.callbacks.ModelCheckpoint(
-                  filepath=("./test/{0}_dnn_best_model_{1}.h5".format(str(t), str(n))),
-                  save_weights_only=False, monitor='val_acc', save_best_only=True)])
-
-    model.save("./test/{0}_dnn_model_{1}.h5".format(str(t), str(n)))
-
-    print(model.summary())
-
-
-if __name__ == "__main__":
-    t = "mels"
-    X_train, Y_train, X_test, Y_test = data_preprocessing(t)
-    print("===============MEL-SPECTROGRAM===============")
-    dnn_model(X_train, Y_train, X_test, Y_test, t, 0)
-    # for i in range(14, 30):
-    #     print("===== mels-model", i, " =====")
-    #     dnn_model(X_train, Y_train, X_test, Y_test, t, i)
-
-    t = "mfcc"
-    X_train, Y_train, X_test, Y_test = data_preprocessing(t)
-    print("===============MFCC===============")
-    dnn_model(X_train, Y_train, X_test, Y_test, t, 0)
-    # for i in range(30):
-    #     print("===== mfcc-model", i, " =====")
-    #     dnn_model(X_train, Y_train, X_test, Y_test, t, i)
+    def train(self):
+        x_train, y_train, x_test, y_test = self.load_dataset()
+        model = self.model()
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        print(model.summary())
+        model.fit(x_train, y_train, validation_data=(x_test, y_test),
+                  callbacks=[tf.keras.callbacks.ModelCheckpoint(
+                      filepath=self.best_model_path, save_weights_only=False, monitor='val_acc', save_best_only=True)])
+        model.save(self.model_path)
