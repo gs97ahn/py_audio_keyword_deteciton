@@ -9,6 +9,7 @@ from config.config import get_config
 
 config = get_config()
 
+
 class FeatureExtractor():
     def __init__(self):
         self.train_true_ctr_path = config.train_true_ctr_path
@@ -114,7 +115,8 @@ if __name__ == "__main__":
         mels_train_data[i, 1] = 'true'
         print('Mels Train Data:', i, '/', mels_train_data.shape[0])
         # false data
-        mels_train_data[i + 1, 0] = feature_extractor.get_mels(feature_extractor.train_false_ctr_path, train_false_data[i])
+        mels_train_data[i + 1, 0] = feature_extractor.get_mels(feature_extractor.train_false_ctr_path,
+                                                               train_false_data[i])
         mels_train_data[i + 1, 1] = 'false'
         print('Mels Train Data:', i + 1, '/', mels_train_data.shape[0])
     feature_extractor.save_feature(mels_train_data, config.train_dataset_mels_path)
@@ -138,7 +140,8 @@ if __name__ == "__main__":
         mfcc_train_data[i, 1] = 'true'
         print('MFCC Train Data:', i, '/', mfcc_train_data.shape[0])
         # false data
-        mfcc_train_data[i + 1, 0] = feature_extractor.get_mfcc(feature_extractor.train_false_ctr_path, train_false_data[i])
+        mfcc_train_data[i + 1, 0] = feature_extractor.get_mfcc(feature_extractor.train_false_ctr_path,
+                                                               train_false_data[i])
         mfcc_train_data[i + 1, 1] = 'false'
         print('MFCC Train Data:', i + 1, '/', mfcc_train_data.shape[0])
     feature_extractor.save_feature(mfcc_train_data, config.train_dataset_mfcc_path)
@@ -153,4 +156,4 @@ if __name__ == "__main__":
         mfcc_test_data[i + 1, 0] = feature_extractor.get_mfcc(feature_extractor.test_false_ctr_path, test_false_data[i])
         mfcc_test_data[i + 1, 1] = 'false'
         print('MFCC Test Data:', i + 1, '/', mfcc_test_data.shape[0])
-        feature_extractor.save_feature(mfcc_test_data, config.test_dataset_mfcc_path)
+    feature_extractor.save_feature(mfcc_test_data, config.test_dataset_mfcc_path)
