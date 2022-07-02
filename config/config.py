@@ -35,7 +35,6 @@ parser.add_argument('--model_folder_path', type=str, default='./model/', help='P
 parser.add_argument('--data', type=str, default='mels', help='Choose type of data (mels/mfcc)')
 parser.add_argument('--n_train_dataset', type=int, default=24012, help='Number of train dataset')
 parser.add_argument('--n_test_dataset', type=int, default=31968, help='Number of test dataset')
-parser.add_argument('--data', type=str, default='mels', help='Choose type of data (mels/mfcc)')
 parser.add_argument('--n_fft', type=int, default=512, help='Number of FFT')
 parser.add_argument('--n_mels', type=int, default=40, help="Number of Mels")
 parser.add_argument('--n_mfcc', type=int, default=13, help="Number of MFCC")
@@ -67,7 +66,7 @@ parser.add_argument('--dnn_dropout_rate', type=float, default=0.5, help='Dropout
 
 
 # CNN
-parser.add_argument('--cnn_filters', type=int, defulat=16, help='Number of filters for CNN')
+parser.add_argument('--cnn_filters', type=int, default=16, help='Number of filters for CNN')
 parser.add_argument('--cnn_kernel_size', type=int, default=3, help='Number of kernel size for CNN')
 parser.add_argument('--cnn_pool_size', type=int, default=2, help='Number of pool size for CNN')
 parser.add_argument('--cnn_strides', type=int, default=2, help='Number of strides for CNN')
