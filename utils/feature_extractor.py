@@ -1,10 +1,12 @@
 import os
+import shutil
 import numpy as np
 import librosa
 from sklearn import preprocessing
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 from config.config import get_config
 
 config = get_config()
@@ -30,6 +32,10 @@ class FeatureExtractor():
         self.n_mfcc = config.n_mfcc
         self.hop_length = config.hop_length
         self.win_length = config.win_length
+
+        if os.path.isdir(config.dataset_folder_path):
+            shutil.rmtree(config.dataset_folder_path)
+        os.mkdir(config.dataset_folder_path)
 
     def create_folder(self):
         os.makedirs(config.dataset_folder_path, exist_ok=True)
