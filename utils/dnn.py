@@ -36,6 +36,10 @@ class DNN():
             self.best_model_path = self.model_folder_path + 'best_dnn_mfcc.h5'
             self.model_path = self.model_folder_path + 'dnn_mfcc.h5'
 
+        else:
+            print('Error: Incorrect configuration data inputted')
+            exit(1)
+
     def load_dataset(self):
         train_data = pd.DataFrame(np.load(self.train_dataset_path), allow_pickle=True)
         test_data = pd.DataFrame(np.load(self.test_dataset_path), allow_pickle=True)
@@ -47,9 +51,8 @@ class DNN():
         x_test = np.array(test_data.feature.tolist())
         y_test = np.array(test_data.label.tolist())
 
-        lb = LabelEncoder()
-        y_train = keras.utils.to_categorical(lb.fit_transform(y_train))
-        y_test = keras.utils.to_categorical(lb.fit_transform(y_test))
+        y_train = keras.utils.to_categorical(LabelEncoder().fit_transform(y_train))
+        y_test = keras.utils.to_categorical(LabelEncoder().fit_transform(y_test))
 
         return x_train, y_train, x_test, y_test
 
