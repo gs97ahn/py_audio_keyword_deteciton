@@ -7,15 +7,37 @@
 **Speech keyword detection is a deep learning model that recognizes a keyword when spoken.**
 
 ## Dependencies
-To run this program, the following dependencies need to be installed.
+- librosa
+- numpy
+- pandas
+- scikit-learn
+- tensorflow>=1.15
+
+## How it Works
+### 0️⃣ Dependency Installation
 ```commandline
 pip install -r requirements.txt
 ```
+### 1️⃣ Feature Extraction
+Extract Mel-spectrogram and MFCC features from the audio dataset.
+```commandline
+python ./utils/feature_extraction.py
+```
+
+### 2️⃣ Train Model
+```commandline
+python train.py --model [MODEL_TYPE] --data [DATA_FEATURE_TYPE]
+```
+
+### 3️⃣ Test Model
+```commandline
+python test.py --model [MODEL_TYPE] --data [DATA_FEATURE_TYPE]
+```
 
 ## Models
-- DNN
+- FC DNN
 - CNN
-- ResNet3
+- ResNet
 
 ## Environment
 The experiment was designed specifically to run on a small embedded system such as NVIDIA Jetson Nano 2GB.
